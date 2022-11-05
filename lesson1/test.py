@@ -59,3 +59,12 @@ else:
     print("You haven't money")
 
 # None -> False
+work_experience = int(input ("Enter your full work expirience in years: "))
+
+
+if 1 < work_experience <= 5:
+    print(f"You are Middle")
+if work_experience <= 1:
+    print(f"You Are Junior")
+else:
+    print("You are Senior")
