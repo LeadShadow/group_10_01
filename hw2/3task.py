@@ -14,7 +14,8 @@
 
 first = int(input("Enter the first integer: "))
 second = int(input("Enter the second integer: "))
+nod = first if first < second else second
+while first % nod or second % nod:  # first % nod == 0 and second % nod == 0:
+    nod -= 1
 
-nod =
-while:
-
+print(nod)

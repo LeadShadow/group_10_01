@@ -8,9 +8,12 @@
 
 num = int(input("Enter integer (0 for output): "))
 sum = 0
-while
-    for
+while num > 0:
+    for i in range(0, num+1):  # num -> 10 + 1
+        sum += i
     num = int(input("Enter integer (0 for output): "))
 
 
 print(sum)
+
+# range(10) -> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
