@@ -10,5 +10,3 @@ for i in message:
 
 print(result)
 
-
-
