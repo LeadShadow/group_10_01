@@ -13,3 +13,17 @@ if count_a % 2 == 0:
     print('кількість букв а - парна')
 else:
     print('кількість букв а - непарна')
+
+
+
+data = [10, 20, 30, 40]
+data.pop()
+print(data)
+
+
+
+i = 'welcome'
+y = [2, 5j, 6]
+
+y.sort()
+print(y)

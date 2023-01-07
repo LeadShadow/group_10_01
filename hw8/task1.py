@@ -21,4 +21,20 @@
 # Robert Stivenson,28
 # Alex Denver,30
 # Drake Mikelsson,19
-def write_employees_to_file(employee_list, path):
+from pathlib import Path
+
+
+def write_employees_to_file(employee_list, path_):
+    file = open(path_, 'w')
+    for list_ in employee_list:
+        for value in list_:
+            file.write(value + '\n')
+    file.close()
+
+
+if __name__ == "__main__":
+    employee_list = [['Robert Stivenson,28', 'Alex Denver,30'], ['Drake Mikelsson,19']]
+    path = Path('temp.txt')
+    write_employees_to_file(employee_list, path)
+
+
