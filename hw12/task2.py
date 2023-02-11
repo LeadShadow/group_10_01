@@ -4,8 +4,11 @@
 # високосного года.
 
 # Це завдання можна виконати з допомогою інтернету, або ж тих навичок, які ми вже вивчили
-from datetime import date
-
+from datetime import datetime
+from calendar import monthrange
 
 def get_days_in_month(month, year):
-    pass
+    return monthrange(year, month)[1]
+
+
+print(get_days_in_month(2, 2023))

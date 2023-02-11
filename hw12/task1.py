@@ -4,6 +4,12 @@
 # Зробити переведення в об'єкт datetime і зробити обрахунки к-сті днів
 from datetime import datetime
 
+def get_days_from_today(date):
+    current_date = datetime.now().date()
+    import_date = datetime.strptime(date, '%Y-%m-%d').date()
+    delta = current_date - import_date
+    return delta.days
 
-def get_days_from_today(date: datetime):
-    pass
+
+
+print(get_days_from_today('2020-11-28'))
