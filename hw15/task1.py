@@ -23,3 +23,13 @@ Cat = collections.namedtuple("Cat", ["nickname", "age", "owner"])
 
 
 def convert_list(cats):
+    if not cats:
+        return []
+    if type(cats[0]) == Cat:
+        return [{'nickname': cat.nickname, 'age': cat.age, 'owner': cat.owner} for cat in cats]
+    else:
+        return [Cat(cat['nickname'], cat['age'], cat['owner']) for cat in cats]
+
+
+if __name__ == "__main__":
+    print(convert_list([Cat("Mick", 5, "Sara"), Cat("Barsik", 7, "Olga"), Cat("Simon", 3, "Yura")]))
