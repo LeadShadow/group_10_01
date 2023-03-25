@@ -11,9 +11,10 @@
 # ** or** и and при проверке.
 work_experience = int(input("Enter your full work experience in years: "))
 
-if :
-
-elif:
-
+if work_experience <= 1:
+    print('Junior')
+elif 1 < work_experience <= 5:
+    print('Middle')
 else:
+    print('Senior')
 

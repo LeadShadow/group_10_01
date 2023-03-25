@@ -37,3 +37,12 @@ def get_description(key):
 
 
 def get_student_grade(option):
+    if option == "grade":
+        return get_grade
+    elif option == "description":
+        return get_description
+
+
+if __name__ == '__main__':
+    func = get_student_grade('description')
+    print(func('A'))
