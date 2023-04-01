@@ -24,10 +24,18 @@
 # номера (из 12 символом) — только знак +. Реализуйте декоратор format_phone_number для
 # функции sanitize_phone_number с необходимым функционалом.
 def format_phone_number(func):
+    def wrapper(phone):
+        new_phone = func(phone)
+        if len(new_phone) == 10:
+           new_phone = "+38" + new_phone
+        elif len(new_phone) == 12:
+           new_phone = "+" + new_phone
+        return new_phone
+    return wrapper
 
 
 @format_phone_number
-def sanitize_phone_number(phone):
+def sanitize_phone_num_ber(phone):
     new_phone = (
         phone.strip()
         .removeprefix("+")
@@ -37,3 +45,8 @@ def sanitize_phone_number(phone):
         .replace(" ", "")
     )
     return new_phone
+
+
+
+print(sanitize_phone_num_ber("38050 111 22 11"))
+
