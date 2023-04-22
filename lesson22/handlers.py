@@ -63,7 +63,7 @@ def add_contact(contacts, *args):
 def change_contact(contacts, *args):
     name, phone = args[0], args[1]
     old_phone = contacts[name]
-    contacts[name] = phone
+    contacts[name] = verify_phone(phone)
     return f'Change user {name}'
 
 
