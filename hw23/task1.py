@@ -58,3 +58,8 @@ class Contacts:
             if contact['id'] == id:
                 return contact
             return None
+
+    def remove_contacts(self, contact_id):
+        for contact in self.contacts:
+            if contact['id'] == contact_id:
+                self.contacts.remove(contact)
