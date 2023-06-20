@@ -38,7 +38,8 @@
 # AddressBook реализует метод add_record, который добавляет Record в self.data.
 from collections import UserDict
 import re
-# Name -> name = Name('Hello, I\'m Sasha'),  print(name) -> Hello I'm Sasha
+
+
 class Field:
     def __init__(self, value) -> None:
         self.value = value
@@ -64,7 +65,7 @@ class Record:
         self.phone_list = phones
 
     def __str__(self) -> str:
-        return f'User {self.name} - phones: {", ".join([phone for phone in self.phone_list])}'  # f'User Sasha - phones: [+380937316048, +380937316049]'
+        return f'User {self.name.value} - Phones: {", ".join([phone for phone in self.phone_list])}'
 
     def add_phone(self, phone: Phone) -> None:
         self.phone_list.append(phone)
@@ -77,9 +78,9 @@ class Record:
         self.phone_list.append(new_phone)
 
 
-class Addressbook(UserDict):
+class AddressBook(UserDict):
     def add_record(self, record: Record) -> None:
-        self.data[record.name.value] = record  # {record.name.value -> 'Sasha'}
+        self.data[record.name.value] = record
 
 
 class PhoneUserAlreadyExists(Exception):
@@ -100,14 +101,21 @@ class InputError:
         except ValueError:
             return 'Error! Phone number is incorrect'
         except PhoneUserAlreadyExists:
-            return 'Error! You cannot add an existing number to user'
-
-def hello(*args):
-    return 'Hello! How can i help you?'
+            return 'Error! You cannot add an existing phone number to a user'
 
 
+def verify_phone(phone: str) -> str:
+    new_phone = re.sub(r'\+|\(|\)|-| |[a-zA-Zа-яА-Я]', '', phone)
+    return new_phone
+
+
+def hello(*args: tuple) -> str:
+    return 'Hello! How can I help you?'
+
+
+# add (Sasha)
 @InputError
-def add_contact(contacts, *args):
+def add_contact(contacts: AddressBook, *args: tuple) -> str:
     name, phone = Name(args[0]), Phone(args[1])
     phone = verify_phone(phone.value)
     if name.value in contacts:
@@ -124,64 +132,59 @@ def add_contact(contacts, *args):
 @InputError
 def change_contact(contacts, *args):
     name, old_phone, new_phone = args[0], args[1], args[2]
-    new_phone = verify_phone(Phone(new_phone).value)
-    old_phone = verify_phone(Phone(old_phone).value)
+    new_phone = verify_phone(new_phone)
     contacts[name].edit_phone(old_phone, new_phone)
-    return f'Change user {name} phone number from {old_phone} to {new_phone}'
+    return f"Change user's {name} phone number from {old_phone} to {new_phone}"
 
 
 @InputError
 def del_phone(contacts, *args):
     name, phone = args[0], args[1]
-    contacts[name].del_phone(Phone(phone))
+    contacts[name].del_phone(verify_phone(phone))
     return f'Delete phone {phone} from user {name}'
 
 
 @InputError
-def show_phone(contacts, *args):
+def show_phone(contacts: dict, *args) -> str:
     name = args[0]
-    return f'User - {name}, phone - {contacts[name]}'
+    return f'{contacts[name]}'
 
-# {'name': "Sasha"}
-def show_all(contacts, *args):
-    result = 'List of all users:'
+
+def show_all(contacts: dict, *args) -> str:
+    result = 'List of all users: '
     for key in contacts:
         result += f'\n{contacts[key]}'
     return result
 
-def verify_phone(phone: str):
-    new_phone = re.sub(r'\+|\(|\)|-| |[a-zA-Zа-яА-Я]', '', phone)
-    return new_phone
+
+def goodbye(*args) -> None:
+    return None
+
+
+def help(*args) -> str:
+    return """Command format:
+help or ? - help
+hello - greeting
+add <name> <phone> - add user to dictionary
+change <name> <phone> - change user's phone number
+del <name> <phone> - delete the user's phone number
+show <name> - show the user's phone number
+show all - all contacts
+close or . or exit or stop - exit the program"""
 
 
 def unknown_command(*args):
     return 'Unknown command!'
 
 
-def goodbye(*args):
-    return None
-
-
-def help_me(*args):
-    return """Command format:
-    help or ? - help
-    hello - function of greeting
-    add <name> <phone> - add user to dict
-    change <name> <phone> - change the user's phone number
-    del <name> <phone> - delete user's phone number
-    phone <name> - show the user's phone number
-    show all - show all contacts
-    close or . or exit or stop - exit the program
-    """
-
 COMMANDS = {hello: ['hello'], add_contact: ['add '], change_contact: ['change '], show_phone: ['phone '],
-            help_me: ['?', 'help'], show_all: ['show all'], goodbye: ['good bye', 'close', 'exit', '.'],
-            del_phone: ['del']}
+            help: ['?', 'help'], show_all: ['show all'], goodbye: ['good bye', 'close', 'exit', 'stop', '.'],
+                                                                   del_phone: ['del ']}
 
 
 def command_parser(user_command: str) -> (str, list):
-    for key, list_value in COMMANDS.items():
-        for value in list_value:
+    for key, values in COMMANDS.items():
+        for value in values:
             if user_command.lower().startswith(value):
                 args = user_command[len(value):].split()
                 return key, args
@@ -190,11 +193,11 @@ def command_parser(user_command: str) -> (str, list):
 
 
 def main():
-    contacts = Addressbook()
+    contacts = AddressBook()
     while True:
         user_command = input('Enter command: ')
         command, data = command_parser(user_command)
-        print(command(contacts, *data))
+        print(command(contacts, *data), '\n')
         if command is goodbye:
             break
 
