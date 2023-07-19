@@ -11,19 +11,15 @@
 # Приложение не теряет данные после выхода из приложения и восстанавливает их из файла.
 # Приложение выводит список пользователей, у которых в имени или номере телефона есть
 # совпадения с введенной строкой.
+import pickle
 from collections import UserDict
 import re
 from datetime import datetime, date
 from pathlib import Path
 
-import colorama
-import pickle
-from collections import UserDict
-import re
-from datetime import datetime, date
-import colorama
 
 N = 3
+
 
 class Field:
     def __init__(self, value) -> None:
@@ -126,13 +122,20 @@ class Record:
 
 
 class AddressBook(UserDict):
+    def __init__(self, filename: str) -> None:
+        super().__init__()  # виклик базового конструктора
+        self.filename = Path(filename)
+        if self.filename.exists():
+            with open(self.filename, 'rb') as file:
+                self.data = pickle.load(file)
+
     def add_record(self, record: Record) -> None:
         self.data[record.name.value] = record
 
-    def iterator(self, days=0):
+    def iterator(self, func=None, days=0):
         index, print_block = 1, '-' * 50 + '\n'
         for record in self.data.values():
-            if days == 0 or (record.birthday.value is not None and record.days_to_birthday(record.birthday) <= days):
+            if func is None or func(record):
                 print_block += str(record) + '\n'
                 if index < N:
                     index += 1
@@ -141,7 +144,9 @@ class AddressBook(UserDict):
                     index, print_block = 1, '-' * 50 + '\n'
         yield print_block
 
-
+    def save(self):
+        with open(self.filename, 'wb') as file:
+            pickle.dump(self.data, file)
 
 class PhoneUserAlreadyExists(Exception):
     """You cannot add an existing phone number to a user"""
@@ -264,7 +269,8 @@ def show_all(contacts: AddressBook, *args) -> str:
     return result
 
 
-def goodbye(*args) -> None:
+def goodbye(contacts, *args):
+    contacts.save()
     return 'GoodBye!'
 
 
@@ -287,10 +293,39 @@ def unknown_command(*args):
     return 'Unknown command!'
 
 
+def search(contacts: AddressBook, *args):
+    def func_sub(record):
+        return substring.lower() in record.name.value.lower() or any(substring in phone.value for phone in record.phone_list) or (record.birthday.value is not None and substring in record.birthday.value.strftime("%d.%m.%Y"))
+    substring = args[0]
+    result = f'List of all users with "{substring.lower()}"\n'
+    print_list = contacts.iterator(func_sub)
+    for item in print_list:
+        result += f'{item}\n'
+    return result
+
+
+@InputError
+def del_user(contacts, *args):
+    name = Name(args[0])
+    yes_no = input(f'Are you sure, you want to delete the user {name.value}? (Y/n)')
+    if yes_no == 'Y':
+        del contacts[name.value]
+        return f'Delete user {name.value}'
+    return f'User not deleted'
+
+
+def clear_all(contacts, *args):
+    yes_no = input(f'Are you sure, you want to clear addressbook? (Y/n)')
+    if yes_no == 'Y':
+        contacts.clear()
+        return f'AddressBook is empty'
+    return f'Removal canceled'
+
+
 COMMANDS = {hello: ['hello'], add_contact: ['add '], change_contact: ['change '], show_phone: ['phone '],
             help: ['?', 'help'], show_all: ['show all'], goodbye: ['good bye', 'close', 'exit', 'stop', '.'],
             del_phone: ['del '], add_birthday: ['birthday'], days_to_user_birthday: ['days to birthday'],
-            show_birthday: ['show birthday days']}
+            show_birthday: ['show birthday days'], search: ['find', 'search'], del_user: ['delete'], clear_all: ['clear']}
 
 
 def command_parser(user_command: str) -> (str, list):
@@ -304,7 +339,7 @@ def command_parser(user_command: str) -> (str, list):
 
 
 def main():
-    contacts = AddressBook()
+    contacts = AddressBook(filename='contacts.dat')
     while True:
         user_command = input('Enter command: ')
         command, data = command_parser(user_command)
